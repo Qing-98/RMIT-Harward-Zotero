@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl"
+  class="in-text"
+  version="1.0"
+  demote-non-dropping-particle="sort-only"
+  page-range-format="expanded"
+  default-locale="en-GB">
+
+  <info>
+    <title>RMIT University - Harvard Modified (Easy Cite aligned)</title>
+    <id>123</id>
+    <link href="http://www.zotero.org/styles/rmit-university-harvard" rel="self"/>
+    <link href="https://www.lib.rmit.edu.au/easy-cite/" rel="documentation"/>
+    <author>
+      <name>Katie Finch</name>
+      <email>library.systems@rmit.edu.au</email>
+    </author>
+    <category citation-format="author-date"/>
+    <category field="generic-base"/>
+    <updated>2026-01-18T00:00:00+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">
+      This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License
+    </rights>
+  </info>
+
+  <locale xml:lang="en">
+    <terms>
+      <!-- Easy Cite uses (ed) / (eds) without full stops -->
+      <term name="editor" form="short">
+        <single>ed</single>
+        <multiple>eds</multiple>
+      </term>
+      <term name="translator" form="short">
+        <single>trans</single>
+        <multiple>trans</multiple>
+      </term>
+
+      <term name="edition" form="short">edn</term>
+      <term name="volume" form="short">vol.</term>
+      <term name="chapter" form="short">ch.</term>
+    </terms>
+  </locale>
+
+  <!-- ========== Name macros (and="text" for “and”) ========== -->
+
+  <macro name="names-long">
+    <names variable="author">
+      <name name-as-sort-order="all"
+            and="text"
+            sort-separator=" "
+            initialize-with=""
+            delimiter=", "
+            delimiter-precedes-last="never"/>
+    </names>
+  </macro>
+
+  <macro name="names-short">
+    <names variable="author">
+      <name form="short"
+            and="text"
+            initialize-with=""
+            delimiter=", "
+            delimiter-precedes-last="never"/>
+    </names>
+  </macro>
+
+  <!-- Editors rendered like authors, with (ed)/(eds) -->
+  <macro name="editor-as-author">
+    <names variable="editor">
+      <name name-as-sort-order="all"
+            and="text"
+            sort-separator=" "
+            initialize-with=""
+            delimiter=", "
+            delimiter-precedes-last="never"/>
+      <label form="short" prefix=" (" suffix=")"/>
+    </names>
+  </macro>
+
+  <!-- For in-text when no author: journal w/ no author uses journal title (not italic). -->
+  <macro name="noauthor-intext">
+    <choose>
+      <if type="article-journal">
+        <text variable="container-title"/>
+      </if>
+      <else>
+        <text variable="title"/>
+      </else>
+    </choose>
+  </macro>
+
+  <!-- For bibliography when no author: default uses title (suppressed later automatically if substituted),
+       BUT journal-article no-author is handled in the article-journal branch to allow journal name twice. -->
+  <macro name="author-bib">
+    <choose>
+      <if variable="author">
+        <text macro="names-long"/>
+      </if>
+      <else-if variable="editor">
+        <text macro="editor-as-author"/>
+      </else-if>
+      <else-if variable="translator">
+        <names variable="translator">
+          <name name-as-sort-order="all"
+                and="text"
+                sort-separator=" "
+                initialize-with=""
+                delimiter=", "
+                delimiter-precedes-last="never"/>
+          <label form="short" prefix=" (" suffix=")"/>
+        </names>
+      </else-if>
+      <else>
+        <text variable="title" font-style="italic"/>
+      </else>
+    </choose>
+  </macro>
+
+  <macro name="author-cite">
+    <choose>
+      <if variable="author">
+        <text macro="names-short"/>
+      </if>
+      <else>
+        <text macro="noauthor-intext"/>
+      </else>
+    </choose>
+  </macro>
+
+  <macro name="year">
+    <choose>
+      <if variable="issued">
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
+  </macro>
+
+  <macro name="accessed-date">
+    <date variable="accessed" form="text">
+      <date-part name="day"/>
+      <date-part name="month"/>
+      <date-part name="year"/>
+    </date>
+  </macro>
+
+  <macro name="edition-edn">
+    <choose>
+      <if variable="edition" is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="ordinal"/>
+          <text term="edition" form="short"/>
+        </group>
+      </if>
+      <else-if variable="edition">
+        <text variable="edition"/>
+      </else-if>
+    </choose>
+  </macro>
+
+  <macro name="doi">
+    <choose>
+      <if variable="DOI">
+        <text variable="DOI" prefix="doi:"/>
+      </if>
+    </choose>
+  </macro>
+
+  <!-- Journal access rule for “no DOI” cases (website/database). -->
+  <macro name="journal-online-access">
+    <choose>
+      <if variable="DOI">
+        <text macro="doi"/>
+      </if>
+
+      <!-- If URL exists: treat as website; use archive as website name if present -->
+      <else-if variable="URL">
+        <choose>
+          <if variable="archive">
+            <group>
+              <group delimiter=", ">
+                <text variable="archive" suffix=" website"/>
+                <group delimiter=" ">
+                  <text term="accessed"/>
+                  <text macro="accessed-date"/>
+                </group>
+              </group>
+              <text variable="URL" prefix=". "/>
+            </group>
+          </if>
+          <else>
+            <group>
+              <group delimiter=" ">
+                <text term="accessed"/>
+                <text macro="accessed-date"/>
+              </group>
+              <text variable="URL" prefix=". "/>
+            </group>
+          </else>
+        </choose>
+      </else-if>
+
+      <!-- If no URL but archive exists: treat as library database -->
+      <else-if variable="archive">
+        <group delimiter=", ">
+          <group delimiter=" ">
+            <text term="accessed"/>
+            <text macro="accessed-date"/>
+          </group>
+          <text variable="archive" suffix=" database"/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+
+  <!-- ========== In-text citation ========== -->
+  <!-- et-al-min=3 makes 3+ authors -> “First et al.” -->
+  <citation et-al-min="3" et-al-use-first="1"
+            disambiguate-add-year-suffix="true"
+            disambiguate-add-names="true"
+            collapse="year">
+    <layout prefix="(" suffix=")" delimiter="; ">
+      <group delimiter=" ">
+        <text macro="author-cite"/>
+        <text macro="year"/>
+        <!-- Easy Cite: Year:Page (no “p.” label) -->
+        <choose>
+          <if variable="locator">
+            <text variable="locator" prefix=":"/>
+          </if>
+        </choose>
+      </group>
+    </layout>
+  </citation>
+
+  <!-- ========== Reference list ========== -->
+  <bibliography hanging-indent="false">
+    <sort>
+      <key macro="author-bib"/>
+      <key macro="year"/>
+    </sort>
+
+    <layout>
+      <choose>
+
+        <!-- ========== JOURNAL ARTICLE (Easy Cite aligned) ========== -->
+        <if type="article-journal">
+
+          <!-- Author OR (no author -> journal name) -->
+          <choose>
+            <if variable="author">
+              <text macro="names-long"/>
+              <text macro="year" prefix=" (" suffix=")"/>
+            </if>
+            <else>
+              <!-- Easy Cite: start with Journal Name (not italic) -->
+              <text variable="container-title"/>
+              <text macro="year" prefix=" (" suffix=")"/>
+            </else>
+          </choose>
+
+          <group delimiter=", " prefix=" ">
+            <!-- 'Article title' -->
+            <text variable="title" prefix="'" suffix="'"/>
+
+            <!-- Journal Title italic (even in no-author case, needs second instance) -->
+            <text variable="container-title" font-style="italic"/>
+
+            <!-- volume(issue):pages OR volume(issue):eLocator(number) -->
+            <group delimiter="">
+              <text variable="volume"/>
+              <choose>
+                <if variable="issue">
+                  <text variable="issue" prefix="(" suffix=")"/>
+                </if>
+              </choose>
+              <text value=":"/>
+              <choose>
+                <if variable="page">
+                  <text variable="page"/>
+                </if>
+                <else-if variable="number">
+                  <text variable="number"/>
+                </else-if>
+              </choose>
+            </group>
+
+            <!-- DOI or online access rule -->
+            <text macro="journal-online-access"/>
+          </group>
+        </if>
+
+        <!-- ========== BOOK (Easy Cite aligned) ========== -->
+        <else-if type="book">
+
+          <!-- Author or editor-as-author already handled by author-bib macro -->
+          <text macro="author-bib"/>
+          <text macro="year" prefix=" (" suffix=")"/>
+
+          <group delimiter=", " prefix=" ">
+            <!-- Title italic -->
+            <text variable="title" font-style="italic"/>
+
+            <!-- Edition (if supplied) -->
+            <text macro="edition-edn"/>
+
+            <!-- Publisher + (doi OR place) -->
+            <text variable="publisher"/>
+            <choose>
+              <if variable="DOI">
+                <text macro="doi"/>
+              </if>
+              <else>
+                <text variable="publisher-place"/>
+              </else>
+            </choose>
+          </group>
+        </else-if>
+
+        <!-- ========== BOOK CHAPTER / CONFERENCE PAPER (Easy Cite style for chapters) ========== -->
+        <else-if type="chapter paper-conference" match="any">
+          <text macro="author-bib"/>
+          <text macro="year" prefix=" (" suffix=")"/>
+
+          <group delimiter=", " prefix=" ">
+            <text variable="title" prefix="'" suffix="'"/>
+            <group delimiter=" ">
+              <text term="in"/>
+              <text macro="editor-as-author"/>
+              <text variable="container-title" font-style="italic"/>
+            </group>
+            <text macro="edition-edn"/>
+            <text variable="publisher"/>
+            <choose>
+              <if variable="DOI">
+                <text macro="doi"/>
+              </if>
+              <else>
+                <text variable="publisher-place"/>
+              </else>
+            </choose>
+          </group>
+        </else-if>
+
+        <!-- ========== REPORT / THESIS / ETC (kept conservative) ========== -->
+        <else-if type="report thesis bill legal_case legislation motion_picture song graphic" match="any">
+          <text macro="author-bib"/>
+          <text macro="year" prefix=" (" suffix=")"/>
+
+          <group delimiter=", " prefix=" ">
+            <text variable="title" font-style="italic"/>
+            <text macro="edition-edn"/>
+            <text variable="publisher"/>
+            <choose>
+              <if variable="DOI">
+                <text macro="doi"/>
+              </if>
+              <else>
+                <text variable="publisher-place"/>
+              </else>
+            </choose>
+          </group>
+        </else-if>
+
+        <!-- ========== WEBPAGE (basic) ========== -->
+        <else-if type="webpage post post-weblog" match="any">
+          <text macro="author-bib"/>
+          <text macro="year" prefix=" (" suffix=")"/>
+          <group delimiter=", " prefix=" ">
+            <text variable="title" font-style="italic"/>
+            <text variable="container-title"/>
+            <choose>
+              <if variable="URL">
+                <group>
+                  <text term="accessed" prefix=" "/>
+                  <text macro="accessed-date"/>
+                  <text variable="URL" prefix=". "/>
+                </group>
+              </if>
+            </choose>
+          </group>
+        </else-if>
+
+        <!-- ========== FALLBACK ========== -->
+        <else>
+          <text macro="author-bib"/>
+          <text macro="year" prefix=" (" suffix=")"/>
+          <group delimiter=", " prefix=" ">
+            <text variable="title"/>
+            <text variable="container-title" font-style="italic"/>
+            <text variable="volume"/>
+            <text variable="page"/>
+          </group>
+          <choose>
+            <if variable="DOI">
+              <text macro="doi" prefix=", "/>
+            </if>
+          </choose>
+        </else>
+
+      </choose>
+    </layout>
+  </bibliography>
+</style>
+
